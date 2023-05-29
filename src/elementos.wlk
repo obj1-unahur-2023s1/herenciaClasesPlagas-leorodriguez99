@@ -1,56 +1,46 @@
 import plagas.*
 
-class Elemento {
-	var property nivel
-	
-	method elementoRecibeAtaqueDe(elemento, plaga){
-		elemento.recibeAtaqueDe(plaga)
-	}
+
+object horticultura{
+	var property nivelProduccionMinimo = 10 //estoy asumiendo un valor de 10 por defecto
 }
 
-class Hogar inherits Elemento {
+class Hogar {
 	var property confort
-	
-	method nivelDeMugre() = nivel
+	var property nivelDeMugre
 	
 	method esBueno() {return (self.nivelDeMugre() <= confort/2)}
 	
 	method recibeAtaqueDe(plaga){
-		nivel = nivel + plaga.nivelDeDanio()
+		nivelDeMugre = nivelDeMugre + plaga.nivelDeDanio()
 	}
 }
 
 
-class Huerta inherits Elemento {
+class Huerta {
 	var property capacidadProduccion
-	var property nivelComun = 10
-	
-	method nivelComun() = nivelComun
 
-	method esBueno() = capacidadProduccion > self.nivelComun()
+
+	method esBueno() = capacidadProduccion > horticultura.nivelProduccionMinimo()
 	
 	method recibeAtaqueDe(plaga){
-		if(plaga.transmiteEnfermedades()){
-			capacidadProduccion = capacidadProduccion - (plaga.nivelDeDanio() * 0.1) - 10
-		}else {
-			capacidadProduccion = capacidadProduccion - plaga.nivelDeDanio() * 0.1
-		}
+		capacidadProduccion -= plaga.nivelDeDanio() * 0.1 -
+		 	(if(plaga.puedeTransmitirEnfermedades()) 10 else 0)
 	}
 }
 
 
-class Mascota inherits Elemento {
-	method nivelDeSalud() = nivel
+class Mascota{
+	var property nivelDeSalud
 	
 	method esBueno() = self.nivelDeSalud() > 250
 	
 	method recibeAtaqueDe(plaga){
-		if(plaga.transmiteEnfermedades()){
-			nivel = nivel - plaga.nivelDeDanio()
+		if(plaga.puedeTransmitirEnfermedades()){
+			nivelDeSalud -= plaga.nivelDeDanio()
 		}
 	}
 }
-
 
 class Barrio {
 	const elementos = []
@@ -59,11 +49,9 @@ class Barrio {
 		elementos.add(unElemento)
 	}
 	
-	method elementos() = elementos
-	
+	method cantElementosBuenos() = elementos.count({elemento => elemento.esBueno()})
+
 	method esCopado() {
-		const elementosBuenos = elementos.count({elemento => elemento.esBueno()})
-		const elementosMalos = elementos.count({elemento => !elemento.esBueno()})
-		return elementosBuenos > elementosMalos
+		return self.cantElementosBuenos() > elementos.size() / 2
 	}
 }

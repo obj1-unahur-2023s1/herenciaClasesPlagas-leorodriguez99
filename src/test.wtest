@@ -1,0 +1,83 @@
+import elementos.*
+import plagas.*
+
+
+describe "tests de plagas" {
+
+const hogarBueno = new Hogar(nivelDeMugre = 10, confort = 50)
+const hogarNoTanBueno = new Hogar(nivelDeMugre = 10, confort = 5)
+const huertaProductiva = new Huerta(capacidadProduccion = 20)
+const barrio1 = new Barrio()
+const mascotaNoSaludable = new Mascota(nivelDeSalud = 200)
+
+const plagaCucas = new Cucarachas(poblacion=30, pesoPromedio= 8 )
+const plagaGarras = new Garrapatas(poblacion=100)
+
+
+method initialize(){
+	horticultura.nivelProduccionMinimo(15)
+	barrio1.agregarElemento(hogarBueno)
+	barrio1.agregarElemento(hogarNoTanBueno)
+}
+//P.ej. si un barrio tiene 7 elementos, 5 son buenos y 2 no, entonces es copado, 
+//pero si 3 son buenos y 4 no, entonces el barrio no es copado.
+
+test "hogar bueno" {
+	assert.that(hogarBueno.esBueno())
+}
+
+test "hogar no tan bueno" {
+	assert.notThat(hogarNoTanBueno.esBueno())
+}
+
+test "huerta buena" {
+	assert.that(huertaProductiva.esBueno())
+}
+
+test "huerta dejo de ser buena" {
+	horticultura.nivelProduccionMinimo(25)
+	assert.notThat(huertaProductiva.esBueno())
+}
+
+test "mascota no saludable no es buena"{
+	assert.notThat(mascotaNoSaludable.esBueno())
+}
+
+
+
+test "barrio copado" {
+	barrio1.agregarElemento(huertaProductiva)
+	assert.that(barrio1.esCopado())
+
+}
+
+test "barrio no copado" {
+	barrio1.agregarElemento(mascotaNoSaludable)
+	assert.notThat(barrio1.esCopado())
+
+}
+
+test "plaga de muchas cucarachas pequeñas no transmite enfermedades" {
+	assert.notThat(plagaCucas.puedeTransmitirEnfermedades())
+}
+
+test "plaga de muchas cucarachas pequeñas tiene nivel de danio de la mitad de su cantidad" {
+	assert.equals(15,plagaCucas.nivelDeDanio())
+}
+
+
+test "plaga de cucas ataca hogar " {
+	plagaCucas.atacar(hogarBueno)
+	assert.equals(25,hogarBueno.nivelDeMugre())
+	assert.equals(33,plagaCucas.poblacion())
+	assert.equals(10,plagaCucas.pesoPromedio())
+
+}
+
+test "plaga de garras ataca hogar y aumenta poblacion" {
+	plagaGarras.atacar(hogarBueno)
+	assert.equals(210,hogarBueno.nivelDeMugre())
+	assert.equals(120,plagaGarras.poblacion())
+
+}
+}
